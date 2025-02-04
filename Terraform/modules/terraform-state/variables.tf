@@ -13,8 +13,8 @@ variable "table_name" {
   type        = string
 }
 
-variable "region" {
-  description = "AWS Region where resources will be created"
-  type        = string
-  default     = "us-east-1"
-}
+# variable "region" {
+#   description = "AWS Region where resources will be created"
+#   type        = string
+#   default     = "us-east-1"
+# }
