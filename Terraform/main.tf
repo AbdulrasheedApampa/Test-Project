@@ -125,6 +125,7 @@ resource "aws_security_group" "rancher_sg" {
 resource "aws_instance" "rancher_vm" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.medium"
+  # availability_zone  = "us-east-1b"
   key_name               = "rancher-key-pair"
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.rancher_sg.id]
@@ -132,15 +133,15 @@ resource "aws_instance" "rancher_vm" {
     Name = "Rancher-Instance"
   }
 
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update -y
-              sudo apt-get install -y docker.io
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -aG docker ubuntu
-              sudo docker run -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher
-              EOF
+  # user_data = <<-EOF
+  #             #!/bin/bash
+  #             sudo apt-get update -y
+  #             sudo apt-get install -y docker.io
+  #             sudo systemctl start docker
+  #             sudo systemctl enable docker
+  #             sudo usermod -aG docker ubuntu
+  #             sudo docker run -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher
+  #             EOF
 
   depends_on = [aws_route_table_association.public_rt_assoc]
 }
@@ -149,6 +150,7 @@ resource "aws_instance" "rancher_vm" {
 resource "aws_instance" "general_vm" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.medium"
+  # availability_zone  = "us-east-1b"
   key_name               = "rancher-key-pair"
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.rancher_sg.id]
