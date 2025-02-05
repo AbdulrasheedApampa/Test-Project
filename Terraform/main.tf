@@ -125,7 +125,7 @@ resource "aws_security_group" "rancher_sg" {
 resource "aws_instance" "rancher_vm" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.medium"
-  key_name               = "your-key-pair"
+  key_name               = "rancher-key-pair"
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.rancher_sg.id]
   tags = {
@@ -149,7 +149,7 @@ resource "aws_instance" "rancher_vm" {
 resource "aws_instance" "general_vm" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.medium"
-  key_name               = "your-key-pair"
+  key_name               = "rancher-key-pair"
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.rancher_sg.id]
   tags = {
