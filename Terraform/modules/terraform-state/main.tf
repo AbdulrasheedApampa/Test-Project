@@ -7,6 +7,7 @@ resource "aws_s3_bucket" "terraform_state" {
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes  = [bucket]
   }
 }
 
@@ -16,10 +17,6 @@ resource "aws_s3_bucket_versioning" "terraform_bucket_versioning" {
 
   versioning_configuration {
     status = "Enabled"
-  }
-
-  lifecycle {
-    prevent_destroy = true
   }
 }
 
@@ -31,10 +28,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state_c
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
-  }
-
-  lifecycle {
-    prevent_destroy = true
   }
 }
 
@@ -51,5 +44,6 @@ resource "aws_dynamodb_table" "terraform_locks" {
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes  = [name]
   }
 }
