@@ -153,19 +153,19 @@ resource "aws_instance" "rancher_vm" {
 }
 
 # Create a general-purpose instance
-resource "aws_instance" "general_vm" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t3.medium"
-  # availability_zone  = "us-east-1b"
-  key_name               = "rancher-key-pair"
-  subnet_id              = aws_subnet.public_subnet.id
-  vpc_security_group_ids = [aws_security_group.rancher_sg.id]
-  tags = {
-    Name = "General-Instance"
-  }
+# resource "aws_instance" "general_vm" {
+#   ami                    = data.aws_ami.ubuntu.id
+#   instance_type          = "t3.medium"
+#   # availability_zone  = "us-east-1b"
+#   key_name               = "rancher-key-pair"
+#   subnet_id              = aws_subnet.public_subnet.id
+#   vpc_security_group_ids = [aws_security_group.rancher_sg.id]
+#   tags = {
+#     Name = "General-Instance"
+#   }
 
-  depends_on = [aws_route_table_association.public_rt_assoc]
-}
+#   depends_on = [aws_route_table_association.public_rt_assoc]
+# }
 
 # Output the public IPs of the instances
 output "rancher_instance_public_ip" {
