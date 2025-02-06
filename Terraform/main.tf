@@ -141,6 +141,7 @@ resource "aws_instance" "rancher_vm" {
               curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
               sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
               sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
+              sudo usermod -aG docker $USER
               sudo docker run -d --privileged \
               --restart=unless-stopped \
               -p 80:80 \
