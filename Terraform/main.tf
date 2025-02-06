@@ -172,6 +172,6 @@ output "rancher_instance_public_ip" {
   value = aws_instance.rancher_vm.public_ip
 }
 
-output "general_instance_public_ip" {
-  value = aws_instance.general_vm.public_ip
-}
+# output "general_instance_public_ip" {
+#   value = aws_instance.general_vm.public_ip
+# }
