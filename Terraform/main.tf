@@ -133,22 +133,22 @@ resource "aws_instance" "rancher_vm" {
     Name = "Rancher-Instance"
   }
 
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update -y
-              sudo apt-get upgrade -y
-              sudo apt-get remove docker docker-engine docker.io containerd runc -y
-              sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
-              sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-              sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
-              sudo docker run -d --privileged \
-              --restart=unless-stopped \
-              -p 80:80 \
-              -p 443:443 \
-              --name rancher \
-              rancher/rancher:latest
-              EOF
+  # user_data = <<-EOF
+  #             #!/bin/bash
+  #             sudo apt-get update -y
+  #             sudo apt-get upgrade -y
+  #             sudo apt-get remove docker docker-engine docker.io containerd runc -y
+  #             sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+  #             curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
+  #             sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  #             sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
+  #             sudo docker run -d --privileged \
+  #             --restart=unless-stopped \
+  #             -p 80:80 \
+  #             -p 443:443 \
+  #             --name rancher \
+  #             rancher/rancher:latest
+  #             EOF
 
   depends_on = [aws_route_table_association.public_rt_assoc]
 }
