@@ -78,9 +78,10 @@ resource "aws_route_table_association" "public_rt_assoc" {
 # Create a security group for Rancher
 resource "aws_security_group" "rancher_sg" {
   name        = "rancher_sg"
-  description = "Allow inbound traffic on ports 22, 80, 8080, and 443"
+  description = "Allow inbound traffic for SSH, HTTP, HTTPS, Kubernetes, and etcd"
   vpc_id      = aws_vpc.rancher_vpc.id
 
+  # SSH
   ingress {
     description = "SSH"
     from_port   = 22
@@ -89,6 +90,7 @@ resource "aws_security_group" "rancher_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # HTTP
   ingress {
     description = "HTTP"
     from_port   = 80
@@ -97,14 +99,7 @@ resource "aws_security_group" "rancher_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    description = "HTTP Alternate"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+  # HTTPS
   ingress {
     description = "HTTPS"
     from_port   = 443
@@ -113,6 +108,43 @@ resource "aws_security_group" "rancher_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Kubernetes API Server
+  ingress {
+    description = "Kubernetes API Server"
+    from_port   = 6443
+    to_port     = 6443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # etcd
+  ingress {
+    description = "etcd"
+    from_port   = 2379
+    to_port     = 2380
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Flannel Overlay Network (UDP)
+  ingress {
+    description = "Flannel Overlay Network"
+    from_port   = 8472
+    to_port     = 8472
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Kubelet, Scheduler, Controller Manager
+  ingress {
+    description = "Kubelet, Scheduler, Controller Manager"
+    from_port   = 10250
+    to_port     = 10252
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
@@ -120,6 +152,7 @@ resource "aws_security_group" "rancher_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 
 # Create the Rancher instance
 resource "aws_instance" "rancher_vm" {
@@ -154,25 +187,25 @@ resource "aws_instance" "rancher_vm" {
 }
 
 # Create a general-purpose instance
-# resource "aws_instance" "general_vm" {
-#   ami                    = data.aws_ami.ubuntu.id
-#   instance_type          = "t3.medium"
-#   # availability_zone  = "us-east-1b"
-#   key_name               = "rancher-key-pair"
-#   subnet_id              = aws_subnet.public_subnet.id
-#   vpc_security_group_ids = [aws_security_group.rancher_sg.id]
-#   tags = {
-#     Name = "General-Instance"
-#   }
+resource "aws_instance" "general_vm" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t3.medium"
+  # availability_zone  = "us-east-1b"
+  key_name               = "rancher-key-pair"
+  subnet_id              = aws_subnet.public_subnet.id
+  vpc_security_group_ids = [aws_security_group.rancher_sg.id]
+  tags = {
+    Name = "General-Instance"
+  }
 
-#   depends_on = [aws_route_table_association.public_rt_assoc]
-# }
+  depends_on = [aws_route_table_association.public_rt_assoc]
+}
 
 # Output the public IPs of the instances
 output "rancher_instance_public_ip" {
   value = aws_instance.rancher_vm.public_ip
 }
 
-# output "general_instance_public_ip" {
-#   value = aws_instance.general_vm.public_ip
-# }
+output "general_instance_public_ip" {
+  value = aws_instance.general_vm.public_ip
+}
