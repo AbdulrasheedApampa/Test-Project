@@ -181,6 +181,8 @@ resource "aws_instance" "rancher_vm" {
               -p 443:443 \
               --name rancher \
               rancher/rancher:latest
+              sudo swapoff -a
+              sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
               EOF
 
   depends_on = [aws_route_table_association.public_rt_assoc]
