@@ -167,23 +167,53 @@ resource "aws_instance" "rancher_vm" {
   }
 
   user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update -y
-              sudo apt-get upgrade -y
-              sudo apt-get remove docker docker-engine docker.io containerd runc -y
-              sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
-              sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-              sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
-              sudo docker run -d --privileged \
-              --restart=unless-stopped \
-              -p 80:80 \
-              -p 443:443 \
-              --name rancher \
-              rancher/rancher:latest
-              sudo swapoff -a
-              sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-              EOF
+    #!/bin/bash
+    # Update system
+    sudo apt-get update -y
+    sudo apt-get upgrade -y
+
+    # Remove old Docker packages (if any)
+    sudo apt-get remove -y docker docker-engine docker.io containerd runc || true
+
+    # Install dependencies
+    sudo apt-get install -y \
+      apt-transport-https \
+      ca-certificates \
+      curl \
+      software-properties-common
+
+    # Add Docker's official GPG key
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+      | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+    # Add Docker repository (with signed-by)
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+      https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+      | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    # Install Docker
+    sudo apt-get update -y
+    sudo apt-get install -y \
+      docker-ce \
+      docker-ce-cli \
+      containerd.io
+
+    # Add user to docker group (replace "ubuntu" with your EC2 username)
+    sudo usermod -aG docker ubuntu
+
+    # Disable swap (required for Kubernetes)
+    sudo swapoff -a
+    sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+    # Start Rancher
+    sudo docker run -d \
+      --privileged \
+      --restart=unless-stopped \
+      -p 80:80 \
+      -p 443:443 \
+      --name rancher \
+      rancher/rancher:latest
+  EOF
 
   depends_on = [aws_route_table_association.public_rt_assoc]
 }
