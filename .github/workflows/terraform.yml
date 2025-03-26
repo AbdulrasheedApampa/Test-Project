@@ -1,0 +1,55 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform  # Use the 'terraform' folder for commands
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # Get the latest code
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+        # Install Terraform CLI
+
+      - name: Cache Terraform modules
+        uses: actions/cache@v3
+        with:
+          path: .terraform
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+        # Cache the .terraform folder to speed up future runs
+
+      - name: Initialize Terraform
+        run: terraform init
+        # Download providers and modules
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check
+        # Verify file formatting
+
+      - name: Validate Terraform configuration
+        run: terraform validate
+        # Validate configuration syntax
+
+      - name: Create Terraform plan
+        run: terraform plan -out=tfplan
+        # Generate execution plan
+
+      - name: Apply Terraform changes
+        run: terraform apply -auto-approve tfplan
+        env:
+          TF_VAR_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # Apply the plan to update infrastructure
