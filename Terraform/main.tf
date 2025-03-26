@@ -212,7 +212,7 @@ resource "aws_instance" "rancher_vm" {
       -p 80:80 \
       -p 443:443 \
       --name rancher \
-      rancher/rancher:latest
+      rancher/rancher:v2.6.3
   EOF
 
   depends_on = [aws_route_table_association.public_rt_assoc]
